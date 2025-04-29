@@ -14,8 +14,7 @@ CORS(app, supports_credentials=True)
 # Configuration
 app.config["MONGO_URI"] = "mongodb://localhost:27017/blogdb"
 app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-here')  # Change in production
-app.config["GOOGLE_CLIENT_ID"] = os.environ.get('GOOGLE_CLIENT_ID', '')  # Add your Google Client ID here
-
+app.config["GOOGLE_CLIENT_ID"] = os.environ.get('REACT_APP_GOOGLE_CLIENT_ID')
 # Initialize MongoDB
 mongo = PyMongo(app)
 
