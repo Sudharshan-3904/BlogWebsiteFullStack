@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://127.0.1:5000";
+const API_URL = "http://localhost:5000";
 
 export const getAllBlogs = async () => {
   try {
@@ -24,7 +24,9 @@ export const getBlogById = async (id) => {
 
 export const createBlog = async (blogData) => {
   try {
-    const response = await axios.post(`${API_URL}/blogs`, blogData);
+    const response = await axios.post(`${API_URL}/create`, blogData, {
+      withCredentials: true,
+    });
     return response.data;
   } catch (error) {
     console.error("Error creating blog:", error);
@@ -34,7 +36,9 @@ export const createBlog = async (blogData) => {
 
 export const updateBlog = async (id, blogData) => {
   try {
-    const response = await axios.put(`${API_URL}/blogs/${id}`, blogData);
+    const response = await axios.put(`${API_URL}/blogs/${id}`, blogData, {
+      withCredentials: true,
+    });
     return response.data;
   } catch (error) {
     console.error(`Error updating blog ${id}:`, error);
@@ -44,7 +48,9 @@ export const updateBlog = async (id, blogData) => {
 
 export const deleteBlog = async (id) => {
   try {
-    const response = await axios.delete(`${API_URL}/blogs/${id}`);
+    const response = await axios.delete(`${API_URL}/blogs/${id}`, {
+      withCredentials: true,
+    });
     return response.data;
   } catch (error) {
     console.error(`Error deleting blog ${id}:`, error);

@@ -15,6 +15,11 @@ CORS(app, supports_credentials=True)
 app.config["MONGO_URI"] = "mongodb://localhost:27017/blogdb"
 app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-here')  # Change in production
 app.config["GOOGLE_CLIENT_ID"] = os.environ.get('REACT_APP_GOOGLE_CLIENT_ID')
+app.config.update(
+    SESSION_COOKIE_SECURE=False,  # Set to True in production with HTTPS
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax'
+)
 # Initialize MongoDB
 mongo = PyMongo(app)
 
@@ -117,24 +122,29 @@ def get_current_user():
     return jsonify({"error": "Not authenticated"}), 401
 
 # Route to create a new blog post
-@app.route('/blogs', methods=['POST'])
+@app.route('/create', methods=['POST'])
 @login_required
 def create_blog():
-    data = request.json
-    title = data.get('title')
-    content = data.get('content')
+    try:
+        app.logger.info('User attempting to create blog: %s', current_user.id if current_user.is_authenticated else 'Not authenticated')
+        data = request.json
+        title = data.get('title')
+        content = data.get('content')
 
-    if not title or not content:
-        return jsonify({"error": "Title and Content are required"}), 400
+        if not title or not content:
+            return jsonify({"error": "Title and Content are required"}), 400
 
-    blog = {
-        "title": title,
-        "content": content,
-        "author_id": current_user.id,
-        "author_name": current_user.name
-    }
-    result = mongo.db.blogs.insert_one(blog)
-    return jsonify({"message": "Blog created", "id": str(result.inserted_id)}), 201
+        blog = {
+            "title": title,
+            "content": content,
+            "author_id": current_user.id,
+            "author_name": current_user.name
+        }
+        result = mongo.db.blogs.insert_one(blog)
+        return jsonify({"message": "Blog created", "id": str(result.inserted_id)}), 201
+    except Exception as e:
+        app.logger.error('Error creating blog: %s', str(e))
+        return jsonify({"error": str(e)}), 500
 
 # Route to get all blog posts
 @app.route('/blogs', methods=['GET'])
